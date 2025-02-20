@@ -8,11 +8,17 @@ import { Login } from './pages/login';
 import { Pricing } from './pages/pricing';
 import { Signup } from './pages/signup';
 import { TryRoom } from './pages/try-room';
+import { Helmet } from 'react-helmet'; // Importing Helmet for managing the document head
 
 function App() {
   return (
     <BrowserRouter>
       <div className="flex min-h-screen flex-col">
+        {/* Set the title for the entire app */}
+        <Helmet>
+          <title>VTON</title>
+        </Helmet>
+
         <Header />
         <main className="flex-1">
           <Routes>

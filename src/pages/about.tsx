@@ -3,24 +3,32 @@ import { GithubIcon, LinkedinIcon } from 'lucide-react';
 
 const teamMembers = [
   {
-    name: 'Sarah Chen',
-    role: 'Lead AI Engineer',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80',
+    name: 'Irfan Ahmed',
+    role: 'Team Lead',
+    image: 'https://media.licdn.com/dms/image/v2/D5635AQE-29Lowx2UWA/profile-framedphoto-shrink_800_800/profile-framedphoto-shrink_800_800/0/1738424461068?e=1740636000&v=beta&t=P-E8ZAYu3Xt0g-4gaY97e0fnHAOwRgajmOCWH69jFZk',
+    linkedin: 'https://www.linkedin.com/in/mirfan-ahmad/',
+    github: '#',
+  },
+  {
+    name: 'Fahad Hussain',
+    role: 'Ml/AI Engineer',
+    image: 'https://media.licdn.com/dms/image/v2/D4D03AQExRAhcYLting/profile-displayphoto-shrink_800_800/B4DZRjs84iHIAg-/0/1736839516464?e=1745452800&v=beta&t=ACm-LbsQ40FfzSNh_kyUq8uJTyMpB120nWaUf1BqkyU',
     linkedin: '#',
     github: '#',
   },
   {
-    name: 'Michael Rodriguez',
-    role: 'Full Stack Developer',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80',
-    linkedin: '#',
-    github: '#',
+    name: 'Azkar Hussain',
+    role: 'Ml Engineer',
+    image: 'https://media.licdn.com/dms/image/v2/D4D03AQEAnoQCXkUXWA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709188740120?e=1745452800&v=beta&t=AlYTmnh3Nl4Le0o9OO___E6ZCX1Rz55rzGBdJKDSauM',
+    linkedin: 'https://www.linkedin.com/in/azkar-hussain-84259a190/',
+    github: 'https://github.com/fahadcr14',
   },
+ 
   {
-    name: 'Emily Thompson',
-    role: 'UX Designer',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80',
-    linkedin: '#',
+    name: 'Muzammil Tariq',
+    role: 'Data Engineer',
+    image: '/public/muz.jpg',
+    linkedin: 'https://www.linkedin.com/in/mirfan-ahmad/',
     github: '#',
   },
 ];
@@ -43,7 +51,7 @@ export function About() {
       <section className="py-24">
         <div className="container">
           <h2 className="text-3xl font-bold">Our Team</h2>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
+          <div className="mt-12 grid gap-8 md:grid-cols-2">
             {teamMembers.map((member) => (
               <div
                 key={member.name}

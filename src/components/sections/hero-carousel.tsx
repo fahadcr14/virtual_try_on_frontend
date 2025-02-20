@@ -21,22 +21,17 @@ export function HeroCarousel() {
   }, []);
 
   return (
-    <div className="relative h-[500px] w-full overflow-hidden rounded-lg bg-white p-4 shadow-lg">
+    <div className="relative h-[150px] md:h-[350px] w-[100%] overflow-hidden rounded-xl shadow-xl bg-gradient-to-r from-blue-200 via-indigo-200 to-blue-300">
       {IMAGES.map((src, index) => (
         <img
           key={src}
           src={src}
           alt={`Virtual Try-on Demo ${index + 1}`}
-          className={`absolute left-0 top-0 h-full w-full rounded-lg object-cover transition-opacity duration-1000 ${
+          className={`absolute inset-0 w-full h-[150px] md:h-[350px] object-cover rounded-xl transition-opacity duration-1000 ease-in-out ${
             index === currentIndex ? 'opacity-100' : 'opacity-0'
           }`}
         />
       ))}
-      <div className="absolute bottom-6 left-6 rounded-lg bg-white/90 p-4 backdrop-blur">
-        <p className="text-sm font-medium text-gray-900">
-          Transform your look instantly with AI-powered virtual try-on
-        </p>
-      </div>
     </div>
   );
 }

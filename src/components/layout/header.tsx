@@ -39,8 +39,7 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="mr-4 flex">
           <Link to="/" className="mr-6 flex items-center space-x-2">
-            <GithubIcon className="h-6 w-6" />
-            <span className="font-bold">VirtualTryOn</span>
+            <a href='/'><img src='/logo.png' style={{maxWidth: "35%", height:"auto"}}></img></a>
           </Link>
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <Link to="/about" className="transition-colors hover:text-blue-600">
