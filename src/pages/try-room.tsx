@@ -31,7 +31,7 @@ export function TryRoom() {
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const clothingInputRef = useRef<HTMLInputElement | null>(null)
   const navigate = useNavigate()
-  const API :string  = "https://202.163.113.148:8002/generate/";
+  const API :string  = "https://rvhhmsa3o7chw7s5nuz4j7uxvi0hqukt.lambda-url.eu-north-1.on.aws/";
 
 
   // Checking if the user is logged in
