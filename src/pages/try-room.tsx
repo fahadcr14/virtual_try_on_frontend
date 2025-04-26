@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, X, Download, Loader2, Settings, ImageIcon, Shirt, Sparkles } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
-// Mocked fr the demo - replace with your actual implementation
+// Mocked for the demo - replace with your actual implementation
 const supabase = {
   auth: {
     getUser: async () => ({ data: { user: { id: "123" } } }),
