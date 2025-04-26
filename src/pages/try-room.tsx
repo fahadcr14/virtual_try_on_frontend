@@ -150,7 +150,7 @@ export function TryRoom() {
     //   setLoading(false)
     // }
   }
-// 
+
   const handleImageClick = () => imageInputRef.current?.click()
   const handleClothingClick = () => clothingInputRef.current?.click()
 
