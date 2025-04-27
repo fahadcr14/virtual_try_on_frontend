@@ -197,9 +197,9 @@ export function TryRoom() {
       formData.append("num_inference_steps", inferenceSteps.toString())
       formData.append("guidance_scale", guidanceScale.toString())
       formData.append("seed", "555")
-      formData.append("repaint", "false")
-      formData.append("concat_eval_results", "true")
-      formData.append("cloth_type", "upper")
+      formData.append("repaint", repaint ? "true" : "false")
+      formData.append("concat_eval_results", concatEvalResults.toString())
+      formData.append("cloth_type", clothType)
 
       // Additional parameters
       formData.append("base_model_path", "runwayml/stable-diffusion-inpainting")
