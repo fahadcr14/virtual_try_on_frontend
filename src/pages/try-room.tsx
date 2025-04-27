@@ -36,6 +36,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useNavigate } from "react-router-dom"
 
 // Mocked for the demo - replace with your actual implementation
 const supabase = {
@@ -99,7 +100,7 @@ export function TryRoom() {
   const { toast } = useToast()
 
   const API = "https://rvhhmsa3o7chw7s5nuz4j7uxvi0hqukt.lambda-url.eu-north-1.on.aws/"
-
+  const navigate= useNavigate();
   // Check authentication
   useEffect(() => {
     async function checkAuth() {
@@ -107,8 +108,7 @@ export function TryRoom() {
         data: { user },
       } = await supabase.auth.getUser()
       if (!user) {
-        // In a real app, redirect to login
-        console.log("User not authenticated")
+        navigate("/login")
       }
     }
     checkAuth()
