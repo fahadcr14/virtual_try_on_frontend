@@ -37,13 +37,8 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useNavigate } from "react-router-dom"
+import supabase from "@/lib/supabase"
 
-// Mocked for the demo - replace with your actual implementation
-const supabase = {
-  auth: {
-    getUser: async () => ({ data: { user: { id: "123" } } }),
-  },
-}
 
 // Preset configurations for quick settings
 const presets = [
@@ -109,15 +104,16 @@ export function TryRoom() {
   useEffect(() => {
     async function checkAuth() {
       const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) {
-        navigate("/login")
+        data: { session },
+      } = await supabase.auth.getSession();
+      
+      if (!session) {   
+        navigate("/login");
       }
     }
-    checkAuth()
-  }, [])
-
+    checkAuth();
+  }, []);
+  
   // Apply preset settings
   useEffect(() => {
     if (selectedPreset) {
