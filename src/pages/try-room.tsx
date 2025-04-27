@@ -443,7 +443,11 @@ const handleScaleFactor = (value: number) => {
       })
       return
     }
-  
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+    
     if (activeTab === "upload") {
       setActiveTab("settings")
       setCurrentStep(2)
@@ -886,7 +890,7 @@ const handleScaleFactor = (value: number) => {
   <Slider
     value={[scaleFactor]}
     onValueChange={([value]) => handleScaleFactor(value)}
-    max={2}
+    max={1.5}
     min={1}
     step={0.1}
     className="cursor-pointer [&>span:first-child]:bg-blue-100 [&>span:first-child_span]:bg-blue-600"

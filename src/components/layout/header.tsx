@@ -42,6 +42,7 @@ export function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut() // Sign out using Supabase
     setIsLoggedIn(false)
+     setIsMenuOpen(!isMenuOpen)
     navigate("/") // Redirect to the homepage after logout
   }
 
@@ -49,20 +50,20 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="mr-4 flex">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
+          <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/" className="mr-6 flex items-center space-x-2">
             <img src="/logo.png" style={{ maxWidth: "35%", height: "auto" }} alt="VirtualTryOn Logo" />
           </Link>
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link to="/about" className="transition-colors hover:text-blue-600">
+            <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/about" className="transition-colors hover:text-blue-600">
               About
             </Link>
-            <Link to="/pricing" className="transition-colors hover:text-blue-600">
+            <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/pricing" className="transition-colors hover:text-blue-600">
               Pricing
             </Link>
-            <Link to="/try-room" className="transition-colors hover:text-blue-600">
+            <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/try-room" className="transition-colors hover:text-blue-600">
               Try Room
             </Link>
-            <Link to="/contact" className="transition-colors hover:text-blue-600">
+            <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/contact" className="transition-colors hover:text-blue-600">
               Contact
             </Link>
           </nav>
@@ -71,10 +72,10 @@ export function Header() {
         <div className="hidden md:flex items-center space-x-4">
           {!isLoggedIn ? (
             <>
-              <Link to="/login">
+              <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/login">
                 <Button variant="outline">Login</Button>
               </Link>
-              <Link to="/signup">
+              <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/signup">
                 <Button>Sign Up</Button>
               </Link>
             </>
@@ -102,7 +103,7 @@ export function Header() {
               </button>
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 z-50">
-                  <Link to="/try-room" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/try-room" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Try Room
                   </Link>
                   <button
@@ -123,24 +124,26 @@ export function Header() {
       {isMenuOpen && (
         <div className="md:hidden border-t">
           <nav className="flex flex-col space-y-4 p-4">
-            <Link to="/about" className="transition-colors hover:text-blue-600">
-              About
-            </Link>
-            <Link to="/pricing" className="transition-colors hover:text-blue-600">
-              Pricing
-            </Link>
-            <Link to="/try-room" className="transition-colors hover:text-blue-600">
+          <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/try-room" className="transition-colors hover:text-blue-600">
               Try Room
             </Link>
-            <Link to="/contact" className="transition-colors hover:text-blue-600">
+            <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/pricing" className="transition-colors hover:text-blue-600">
+              Pricing
+            </Link>
+            <Link  onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/about" className="transition-colors hover:text-blue-600">
+              About
+            </Link>
+           
+           
+            <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/contact" className="transition-colors hover:text-blue-600">
               Contact
             </Link>
             {!isLoggedIn ? (
               <>
-                <Link to="/login" className="transition-colors hover:text-blue-600">
+                <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/login" className="transition-colors hover:text-blue-600">
                   Login
                 </Link>
-                <Link to="/signup" className="transition-colors hover:text-blue-600">
+                <Link onClick={() => setIsMenuOpen(!isMenuOpen)}  to="/signup" className="transition-colors hover:text-blue-600">
                   Sign Up
                 </Link>
               </>

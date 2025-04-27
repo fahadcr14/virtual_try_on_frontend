@@ -346,15 +346,21 @@ export function Signup() {
             <div>
               <Card className="overflow-hidden shadow-lg">
                 <CardContent className="p-0">
-                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full ">
                     <div className="border-b px-6 pt-6">
                       <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-2xl font-bold">Get Started</h2>
                         <div className="text-sm text-gray-500">Step {step} of 3</div>
                       </div>
                       <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="email">Email</TabsTrigger>
-                        <TabsTrigger value="google">Google</TabsTrigger>
+                        <TabsTrigger value="email"
+                          className={`rounded-xl ${activeTab === "email" ? "bg-blue-200" : ""}`}
+
+                        >Email  </TabsTrigger>
+                        <TabsTrigger value="google"
+                          className={`rounded-xl ${activeTab === "google" ? "bg-blue-200" : ""}`}
+
+                        >Google</TabsTrigger>
                       </TabsList>
                     </div>
 
@@ -531,7 +537,7 @@ export function Signup() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="w-full"
+                        className="w-full rounded-xl border-gray-300 bg-white text-gray-800 hover:bg-gray-50 shadow-sm"
                         onClick={handleGoogleSignup}
                         disabled={loading}
                       >
@@ -560,19 +566,7 @@ export function Signup() {
                         Continue with Google
                       </Button>
 
-                      <div className="relative my-6">
-                        <div className="absolute inset-0 flex items-center">
-                          <Separator className="w-full" />
-                        </div>
-                        <div className="relative flex justify-center">
-                          <span className="bg-white px-2 text-xs text-gray-500">OR</span>
-                        </div>
-                      </div>
-
-                      <Button type="button" variant="outline" className="w-full" onClick={() => setActiveTab("email")}>
-                        <Mail className="mr-2 h-4 w-4" />
-                        Sign up with Email
-                      </Button>
+                   
                     </TabsContent>
                   </Tabs>
                 </CardContent>
