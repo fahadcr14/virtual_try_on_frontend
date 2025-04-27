@@ -176,35 +176,59 @@ export function TryRoom() {
   }
 
 
-const getImageDims  =   (file: Blob) =>{
-  const img= new Image();
-  img.onload= () => {
-    let newWidth = img.width;
-    let newHeight = img.height;
-    setpersonWidth(newWidth);
-    setpersonHeight(newHeight);
-    if (newWidth < 300 || newHeight < 300) {
-      newWidth = newWidth * 2;
-      newHeight = newHeight * 2;
-    }
-
-    setWidth(Math.round(newWidth));
-    setHeight(Math.round(newHeight));
-
- 
-    URL.revokeObjectURL(img.src); // cleanup after done
-
-  }
-  img.src = URL.createObjectURL(file); // required!
-
-}
+  const getImageDims = (file: Blob) => {
+    const img = new Image();
+    img.onload = () => {
+      let newWidth = img.width;
+      let newHeight = img.height;
+  
+      setpersonWidth(newWidth);
+      setpersonHeight(newHeight);
+  
+      // Upscale if smaller than 300
+      if (newWidth < 300 || newHeight < 300) {
+        newWidth *= 2;
+        newHeight *= 2;
+      }
+  
+      // Downscale proportionally if larger than 1024
+      const maxDimension = 768;
+      if (newWidth > maxDimension || newHeight > maxDimension) {
+        const scale = maxDimension / Math.max(newWidth, newHeight);
+        newWidth *= scale;
+        newHeight *= scale;
+        setpersonHeight(newHeight);
+        setpersonWidth(newWidth);
+      }
+  
+      // Final rounding
+      newWidth = Math.round(newWidth);
+      newHeight = Math.round(newHeight);
+  
+      setWidth(newWidth);
+      setHeight(newHeight);
+  
+      URL.revokeObjectURL(img.src); // cleanup
+    };
+    img.src = URL.createObjectURL(file);
+  };
+  
+  
 
 const handleScaleFactor = (value: number) => {
   setScaleFactor(value);
-  const newWidth = Math.round(personwidth * value);
-  const newHeight = Math.round(personheight * value);
-  setWidth(newWidth);
-  setHeight(newHeight);
+  let newWidth = Math.round(personwidth * value);
+  let newHeight = Math.round(personheight * value);
+  
+  const maxDimension = 768;
+  if (newWidth > maxDimension || newHeight > maxDimension) {
+    const scale = maxDimension / Math.max(newWidth, newHeight);
+    newWidth *= scale;
+    newHeight *= scale;
+    setWidth(Math.round(newWidth));
+    setHeight(Math.round(newHeight));
+
+  }
   // toast({
   //   title: "Scaler Factor Applied",
   //   description: `Width: ${newWidth}px, Height: ${newHeight}px`,
