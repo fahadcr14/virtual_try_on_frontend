@@ -171,6 +171,19 @@ export function TryRoom() {
     })
   }
 
+
+const getImageDims  = async  (file: Blob) =>{
+  const img= new Image();
+  img.onload= () => {
+    setWidth(img.width);
+    setHeight(img.height);
+    URL.revokeObjectURL(img.src); // cleanup after done
+
+  }
+  img.src = URL.createObjectURL(file); // required!
+
+}
+
   const handleSubmit = async () => {
     if (!image || !clothing) {
       toast({
@@ -186,6 +199,7 @@ export function TryRoom() {
 
     try {
       const imageBlob = await fileToBlob(image)
+      await getImageDims(imageBlob);
       const clothingBlob = await fileToBlob(clothing)
 
       const formData = new FormData()
