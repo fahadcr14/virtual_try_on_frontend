@@ -960,7 +960,7 @@ export function TryRoom() {
                                   <div className="animate-spin h-16 w-16 rounded-full border-4 border-blue-200 border-t-blue-600"></div>
                                 </div>
                                 <p className="text-gray-600 font-medium mt-4">Generating your virtual try-on...</p>
-                                <p className="text-sm text-gray-500 mt-2">This may take a minute</p>
+                                <p className="text-sm text-gray-500 mt-2">This may take few minutes</p>
                               </div>
                             ) : (
                               <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
