@@ -80,8 +80,10 @@ export function TryRoom() {
   const [clothingPreview, setClothingPreview] = useState<string | null>(null)
   const [height, setHeight] = useState(512)
   const [width, setWidth] = useState(512)
+  const [personheight, setpersonHeight] = useState(0)
+  const [personwidth, setpersonWidth] = useState(0)
   const [guidanceScale, setGuidanceScale] = useState(2.5)
-  const [inferenceSteps, setInferenceSteps] = useState(5)
+  const [inferenceSteps, setInferenceSteps] = useState(10)
   const [seed, setSeed] = useState("555")
   const [repaint, setRepaint] = useState(false)
   const [concatEvalResults, setConcatEvalResults] = useState(true)
@@ -92,12 +94,14 @@ export function TryRoom() {
   const [currentStep, setCurrentStep] = useState(1)
   const [progress, setProgress] = useState(0)
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
-  const [advancedMode, setAdvancedMode] = useState(false)
+  const [advancedMode, setAdvancedMode] = useState(true)
   const [generationHistory, setGenerationHistory] = useState<Array<{ id: string; image: string; timestamp: Date }>>([])
-
+  const [scaleFactor, setScaleFactor] = useState(1)
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const clothingInputRef = useRef<HTMLInputElement | null>(null)
   const { toast } = useToast()
+  const [upscale, setUpscale] = useState(false);
+
 
   const API = "https://rvhhmsa3o7chw7s5nuz4j7uxvi0hqukt.lambda-url.eu-north-1.on.aws/"
   const navigate= useNavigate();
@@ -135,16 +139,16 @@ export function TryRoom() {
       setProgress(0)
       const interval = setInterval(() => {
         setProgress((prev) => {
-          if (prev >= 95) {
+          if (prev >= 99) {
             clearInterval(interval)
-            return 95
+            return 99
           }
-          return prev + 5
+          return prev + 1
         })
       }, 1000)
 
       return () => clearInterval(interval)
-    } else if (progress === 95 && generatedImage) {
+    } else if (progress === 99 && generatedImage) {
       setProgress(100)
     }
   }, [loading, generatedImage])
@@ -172,17 +176,40 @@ export function TryRoom() {
   }
 
 
-const getImageDims  = async  (file: Blob) =>{
+const getImageDims  =   (file: Blob) =>{
   const img= new Image();
   img.onload= () => {
-    setWidth(img.width);
-    setHeight(img.height);
+    let newWidth = img.width;
+    let newHeight = img.height;
+    setpersonWidth(newWidth);
+    setpersonHeight(newHeight);
+    if (newWidth < 300 || newHeight < 300) {
+      newWidth = newWidth * 2;
+      newHeight = newHeight * 2;
+    }
+
+    setWidth(Math.round(newWidth));
+    setHeight(Math.round(newHeight));
+
+ 
     URL.revokeObjectURL(img.src); // cleanup after done
 
   }
   img.src = URL.createObjectURL(file); // required!
 
 }
+
+const handleScaleFactor = (value: number) => {
+  setScaleFactor(value);
+  const newWidth = Math.round(personwidth * value);
+  const newHeight = Math.round(personheight * value);
+  setWidth(newWidth);
+  setHeight(newHeight);
+  // toast({
+  //   title: "Scaler Factor Applied",
+  //   description: `Width: ${newWidth}px, Height: ${newHeight}px`,
+  // });
+  }
 
   const handleSubmit = async () => {
     if (!image || !clothing) {
@@ -199,7 +226,6 @@ const getImageDims  = async  (file: Blob) =>{
 
     try {
       const imageBlob = await fileToBlob(image)
-      await getImageDims(imageBlob);
       const clothingBlob = await fileToBlob(clothing)
 
       const formData = new FormData()
@@ -228,7 +254,40 @@ const getImageDims  = async  (file: Blob) =>{
       if (response.ok) {
         const blob = await response.blob()
         const imageUrl = URL.createObjectURL(blob)
-        setGeneratedImage(imageUrl)
+        if (upscale) {
+          const upscaleForm = new FormData();
+          upscaleForm.append('upscale_factor', '2');
+          upscaleForm.append('format', 'JPG');
+          upscaleForm.append('image', blob); // Upload blob directly!
+        
+          const upscaleOptions = {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+              'X-Picsart-API-Key': 'eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtZWY4NTdlNjEtYWY2ZC00Zjc1LTkwZTUtNDg3NzViZGE5OGEzIiwiYXVkIjoiNDYwMTI4NjIzMDE0MTAxIiwibmJmIjoxNzQ1NzQ5NjEyLCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDYwMTI4NjIzMDE0MTAxIiwiaWF0IjoxNzQ1NzQ5NjEyLCJqdGkiOiJlODQ3NWVjNi1iMjJhLTQxMzQtYTllNS1iMzAxZmU5M2M5NmMifQ.jSX7Dbexvov4AoFawKVgR0Qsi_OC9p16qHmAwicGDnctufuQnwTatBle8Y7hSDho5bWzlBpYqGDNk8lyFzJBQcmJTJsCSlFlmn1VGPk63wE0vk4RCn7CDVxgOMWJafNLfb3ephnMZpA5_wgkD9ZjUv6i_NaX3-fD61Tkg8HggWy9BePPZiUQ5L8GzX6DE66x12I4UkMVdbjXxAJAc428edmintNy8IRCPw2FMWuUsemj3_V3aEb8n1amE5I7mQhKu4Malnx3lqUFf2TNqM4dpirB_1vb7QIfwi-NFqxlAq29cya8m204zuOcZxT5zGgleVzfAkBELKCWOVJHeJd4lg', // 👈 your API key
+            },
+            body: upscaleForm,
+          };
+        
+          try {
+            const upscaleResponse = await fetch('https://api.picsart.io/tools/1.0/upscale', upscaleOptions);
+            const upscaleData = await upscaleResponse.json();
+        
+            if (upscaleData?.data?.url) {
+              console.log("Upscaled image URL:", upscaleData.data.url);
+              setGeneratedImage(upscaleData.data.url);
+            } else {
+              console.error("Upscale failed, using original image.");
+              setGeneratedImage(imageUrl);
+            }
+          } catch (upscaleError) {
+            console.error("Upscale API error:", upscaleError);
+            setGeneratedImage(imageUrl);
+          }
+        } else {
+          setGeneratedImage(imageUrl);
+        }
+        // setGeneratedImage(imageUrl)
         setActiveTab("result")
 
         // Add to history
@@ -271,6 +330,9 @@ const getImageDims  = async  (file: Blob) =>{
       const file = e.target.files[0]
       setImage(file)
       setImagePreview(URL.createObjectURL(file))
+      const imageBlob = new Blob([file], { type: file.type })
+      getImageDims(imageBlob);
+
     }
   }
 
@@ -279,6 +341,7 @@ const getImageDims  = async  (file: Blob) =>{
       const file = e.target.files[0]
       setClothing(file)
       setClothingPreview(URL.createObjectURL(file))
+    
     }
   }
 
@@ -775,6 +838,40 @@ const getImageDims  = async  (file: Blob) =>{
                               </p>
                             </div>
                           </div>
+                          
+
+                          <div className="space-y-3">
+  <div className="flex justify-between items-center">
+    <label className="text-sm font-medium text-gray-700 flex items-center">
+      <span>Scale Factor</span>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="h-4 w-4 ml-2 text-gray-400" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>If image is small, multiply width/height by this factor</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </label>
+    <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+      {scaleFactor.toFixed(1)}×
+    </span>
+  </div>
+  <Slider
+    value={[scaleFactor]}
+    onValueChange={([value]) => handleScaleFactor(value)}
+    max={2}
+    min={1}
+    step={0.1}
+    className="cursor-pointer [&>span:first-child]:bg-blue-100 [&>span:first-child_span]:bg-blue-600"
+  />
+  <p className="text-xs text-gray-500">
+    Will apply when uploaded image size is smaller than 300px.
+  </p>
+</div>
+
 
                           <div className="space-y-3">
                             <div className="flex justify-between items-center">
@@ -887,7 +984,13 @@ const getImageDims  = async  (file: Blob) =>{
                                     </p>
                                   </div>
                                 </div>
-
+                                <div className="flex items-center justify-between">
+                                  <div className="space-y-0.5">
+                                    <label className="text-sm font-medium text-gray-700">Upscale Image</label>
+                                    <p className="text-xs text-gray-500">Upscale Image</p>
+                                  </div>
+                                  <Switch checked={upscale} onCheckedChange={setUpscale} />
+                                </div>
                                 <div className="flex items-center justify-between">
                                   <div className="space-y-0.5">
                                     <label className="text-sm font-medium text-gray-700">Concatenate Results</label>
@@ -895,11 +998,13 @@ const getImageDims  = async  (file: Blob) =>{
                                   </div>
                                   <Switch checked={concatEvalResults} onCheckedChange={setConcatEvalResults} />
                                 </div>
+                               
                                 <p className="text-xs text-gray-500">
                                   Parameter: <code>concat_eval_results</code> ={" "}
                                   <code>{concatEvalResults ? "true" : "false"}</code>
                                 </p>
                               </div>
+                              
                             </>
                           )}
 
