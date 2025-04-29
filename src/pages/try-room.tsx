@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Client } from "@gradio/client";  // ✅ already in your example
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Upload,
@@ -96,23 +97,25 @@ export function TryRoom() {
   const clothingInputRef = useRef<HTMLInputElement | null>(null)
   const { toast } = useToast()
   const [upscale, setUpscale] = useState(false);
+  const [useGradio, setUseGradio] = useState(true);
 
-
+  
   const API = "https://rvhhmsa3o7chw7s5nuz4j7uxvi0hqukt.lambda-url.eu-north-1.on.aws/"
+  const GRADIO_API=""
   const navigate= useNavigate();
   // Check authentication
-  useEffect(() => {
-    async function checkAuth() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  // useEffect(() => {
+  //   async function checkAuth() {
+  //     const {
+  //       data: { session },
+  //     } = await supabase.auth.getSession();
       
-      if (!session) {   
-        navigate("/login");
-      }
-    }
-    checkAuth();
-  }, []);
+  //     if (!session) {   
+  //       navigate("/login");
+  //     }
+  //   }
+  //   checkAuth();
+  // }, []);
   
   // Apply preset settings
   useEffect(() => {
@@ -211,6 +214,50 @@ export function TryRoom() {
   
   
 
+const callGradio = async (imageBlob: Blob, clothingBlob: Blob) => {
+  
+  const personImageBase64 = await blobToBase64(imageBlob);
+  const clothImageBase64 = await blobToBase64(clothingBlob);
+
+  const response = await fetch("https://ltdueqpntzoj4xknr754ooifhq0cjdhp.lambda-url.eu-north-1.on.aws/", {
+    method: "POST",
+
+    body: JSON.stringify({
+      person_image: personImageBase64,
+      cloth_image: clothImageBase64,
+      height: height,
+      width: width,
+      num_inference_steps: inferenceSteps,
+      guidance_scale: guidanceScale,
+      seed: seed,
+      repaint: true,
+      concat_eval_results: true,
+      cloth_type: clothType,
+    }),
+  });
+  
+  const result = await response.json();
+  console.log(result.data); // 🎯
+  
+
+
+
+  return result.data as any[];
+};
+
+  // convert blob to base64
+
+  const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+  
 const handleScaleFactor = (value: number) => {
   setScaleFactor(value);
   let newWidth = Math.round(personwidth * value);
@@ -243,7 +290,17 @@ const handleScaleFactor = (value: number) => {
 
     setLoading(true)
     setGeneratedImage(null)
+    if (useGradio) {
+      let imageUrl;
+      const imageBlob = await fileToBlob(image)
+      const clothingBlob = await fileToBlob(clothing)
 
+      const data = await callGradio(imageBlob, clothingBlob);
+      imageUrl = (data && data[0]?.url) || "";   // Now no type error!
+      setGeneratedImage(imageUrl)
+      setLoading(false)
+    }
+    else{
     try {
       const imageBlob = await fileToBlob(image)
       const clothingBlob = await fileToBlob(clothing)
@@ -338,12 +395,15 @@ const handleScaleFactor = (value: number) => {
         variant: "destructive",
       })
     } finally {
+      // 
       setLoading(false)
-    }
+    }}
+    
   }
 
   const handleImageClick = () => imageInputRef.current?.click()
   const handleClothingClick = () => clothingInputRef.current?.click()
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -1008,6 +1068,11 @@ const handleScaleFactor = (value: number) => {
                                     </p>
                                   </div>
                                 </div>
+                                <div className="flex items-center justify-between">
+  <Label htmlFor="use-gradio" className="text-sm text-gray-700">Ultra Mode</Label>
+  <Switch id="use-gradio" checked={useGradio} onCheckedChange={setUseGradio} />
+</div>
+
                                 <div className="flex items-center justify-between">
                                   <div className="space-y-0.5">
                                     <label className="text-sm font-medium text-gray-700">Upscale Image</label>
