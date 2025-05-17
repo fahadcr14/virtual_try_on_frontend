@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Client } from "@gradio/client";  // ✅ already in your example
+import * as exifr from 'exifr';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Upload,
@@ -45,25 +47,25 @@ import supabase from "@/lib/supabase"
 const presets = [
   {
     name: "Standard",
-    inferenceSteps: 20,
+    inferenceSteps: 50,
     guidanceScale: 2.5,
     description: "Balanced quality and speed",
   },
   {
     name: "High Quality",
-    inferenceSteps: 40,
+    inferenceSteps: 200,
     guidanceScale: 3,
     description: "Best quality, slower generation",
   },
   {
     name: "Fast",
-    inferenceSteps: 10,
+    inferenceSteps: 20,
     guidanceScale: 2.0,
     description: "Quicker results, lower quality",
   },
   {
     name: "Creative",
-    inferenceSteps: 60,
+    inferenceSteps: 70,
     guidanceScale: 5.0,
     description: "More creative variations",
   },
@@ -231,7 +233,7 @@ const callGradio = async (imageBlob: Blob, clothingBlob: Blob) => {
       guidance_scale: guidanceScale,
       seed: seed,
       repaint: false,
-      concat_eval_results: true,
+      concat_eval_results: concatEvalResults,
       cloth_type: clothType,
     }),
   });
@@ -260,18 +262,18 @@ const callGradio = async (imageBlob: Blob, clothingBlob: Blob) => {
   
 const handleScaleFactor = (value: number) => {
   setScaleFactor(value);
-  let newWidth = Math.round(personwidth * value);
-  let newHeight = Math.round(personheight * value);
+  // let newWidth = Math.round(personwidth * value);
+  // let newHeight = Math.round(personheight * value);
   
-  const maxDimension = 768;
-  if (newWidth > maxDimension || newHeight > maxDimension) {
-    const scale = maxDimension / Math.max(newWidth, newHeight);
-    newWidth *= scale;
-    newHeight *= scale;
-    setWidth(Math.round(newWidth));
-    setHeight(Math.round(newHeight));
+  // const maxDimension = 768;
+  // if (newWidth > maxDimension || newHeight > maxDimension) {
+  //   const scale = maxDimension / Math.max(newWidth, newHeight);
+  //   newWidth *= scale;
+  //   newHeight *= scale;
+  //   setWidth(Math.round(newWidth));
+  //   setHeight(Math.round(newHeight));
 
-  }
+  // }
   // toast({
   //   title: "Scaler Factor Applied",
   //   description: `Width: ${newWidth}px, Height: ${newHeight}px`,
@@ -405,16 +407,79 @@ const handleScaleFactor = (value: number) => {
   const handleClothingClick = () => clothingInputRef.current?.click()
 
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      const file = e.target.files[0]
-      setImage(file)
-      setImagePreview(URL.createObjectURL(file))
-      const imageBlob = new Blob([file], { type: file.type })
-      getImageDims(imageBlob);
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files?.[0]) {
+  //     const file = e.target.files[0]
+  //     setImage(file)
+  //     setImagePreview(URL.createObjectURL(file))
+  //     const imageBlob = new Blob([file], { type: file.type })
+  //     getImageDims(imageBlob);
 
-    }
-  }
+  //   }
+  // }
+
+
+
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  setImage(file);
+
+  const img = new Image();
+  const reader = new FileReader();
+
+  reader.onload = async function (event) {
+    if (!event.target?.result) return;
+
+    img.onload = async () => {
+      let orientation = 1;
+      try {
+        orientation = (await exifr.orientation(file)) || 1;
+        console.log("EXIF Orientation:", orientation);
+      } catch (err) {
+        console.warn("EXIF parsing failed, defaulting to 1");
+      }
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if ([5, 6, 7, 8].includes(orientation)) {
+        canvas.width = img.height;
+        canvas.height = img.width;
+      } else {
+        canvas.width = img.width;
+        canvas.height = img.height;
+      }
+
+      switch (orientation) {
+        case 2: ctx?.transform(-1, 0, 0, 1, img.width, 0); break; // flip horizontal
+        case 3: ctx?.transform(-1, 0, 0, -1, img.width, img.height); break; // rotate 180
+        case 4: ctx?.transform(1, 0, 0, -1, 0, img.height); break; // flip vertical
+        case 5: ctx?.transform(0, 1, 1, 0, 0, 0); break;
+        case 6: ctx?.transform(0, 1, -1, 0, img.height, 0); break;
+        case 7: ctx?.transform(0, -1, -1, 0, img.height, img.width); break;
+        case 8: ctx?.transform(0, -1, 1, 0, 0, img.width); break;
+        default: break;
+      }
+
+      ctx?.drawImage(img, 0, 0);
+
+      const dataUrl = canvas.toDataURL('image/jpeg');
+      setImagePreview(dataUrl);
+
+      canvas.toBlob((blob) => {
+        if (blob) getImageDims(blob);
+      }, 'image/jpeg');
+    };
+
+    img.src = event.target.result as string;
+  };
+
+  reader.readAsDataURL(file);
+};
+
+
 
   const handleClothingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -979,7 +1044,7 @@ const handleScaleFactor = (value: number) => {
                             <Slider
                               value={[inferenceSteps]}
                               onValueChange={([value]) => setInferenceSteps(value)}
-                              max={100}
+                              max={600}
                               min={10}
                               step={1}
                               className="[&>span:first-child]:bg-blue-100 [&>span:first-child_span]:bg-blue-600"
