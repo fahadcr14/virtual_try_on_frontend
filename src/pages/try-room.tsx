@@ -230,7 +230,7 @@ const callGradio = async (imageBlob: Blob, clothingBlob: Blob) => {
       num_inference_steps: inferenceSteps,
       guidance_scale: guidanceScale,
       seed: seed,
-      repaint: true,
+      repaint: false,
       concat_eval_results: true,
       cloth_type: clothType,
     }),
